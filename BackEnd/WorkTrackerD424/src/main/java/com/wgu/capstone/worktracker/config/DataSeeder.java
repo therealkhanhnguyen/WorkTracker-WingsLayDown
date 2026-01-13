@@ -1,6 +1,9 @@
 package com.wgu.capstone.worktracker.config;
 
+import com.wgu.capstone.worktracker.entity.User;
 import com.wgu.capstone.worktracker.entity.WingSection;
+import com.wgu.capstone.worktracker.enumtype.Role;
+import com.wgu.capstone.worktracker.repository.UserRepository;
 import com.wgu.capstone.worktracker.repository.WingSectionRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -10,15 +13,18 @@ import java.util.List;
 @Component
 public class DataSeeder implements CommandLineRunner {
 
-    private WingSectionRepository wingSectionRepository;
+    private final WingSectionRepository wingSectionRepository;
+    private final UserRepository userRepository;
 
-    public DataSeeder(WingSectionRepository wingSectionRepository) {
+    public DataSeeder(WingSectionRepository wingSectionRepository, UserRepository userRepository) {
         this.wingSectionRepository = wingSectionRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
     public void run(String... args) {
         seedWingSections();
+        seedUsers();
     }
 
     private void seedWingSections() {
@@ -45,5 +51,21 @@ public class DataSeeder implements CommandLineRunner {
         );
         wingSectionRepository.saveAll(sections);
         System.out.println("Seeded " + sections.size() + " Wing sections");
+
+    }
+
+    private void seedUsers(){
+        if (userRepository.count() > 0) {
+            return;
+        }
+        List<User> users = List.of(
+                new User("Manager One", Role.MANAGER),
+                new User("QA One", Role.QA),
+                new User("Employee One", Role.EMPLOYEE),
+                new User("Employee Two", Role.EMPLOYEE),
+                new User("Employee Three", Role.EMPLOYEE)
+        );
+        userRepository.saveAll(users);
+        System.out.println("Seeded " + users.size() + " users");
     }
 }
