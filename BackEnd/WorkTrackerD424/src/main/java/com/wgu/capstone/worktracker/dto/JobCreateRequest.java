@@ -1,6 +1,7 @@
 package com.wgu.capstone.worktracker.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public class JobCreateRequest {
@@ -8,8 +9,7 @@ public class JobCreateRequest {
     @Size(max = 64)
     private String wingSectionId;
 
-    @NotBlank
-    @Size(max = 100)
+    @NotNull
     private Long assignedEmployeeId;
 
     @NotBlank
@@ -23,11 +23,11 @@ public class JobCreateRequest {
     public JobCreateRequest() {
     }
 
-    public @NotBlank @Size(max = 100) Long getAssignedEmployeeId() {
+    public @NotNull Long getAssignedEmployeeId() {
         return assignedEmployeeId;
     }
 
-    public void setAssignedEmployeeId(@NotBlank @Size(max = 100) Long assignedEmployeeId) {
+    public void setAssignedEmployeeId(@NotNull Long assignedEmployeeId) {
         this.assignedEmployeeId = assignedEmployeeId;
     }
 

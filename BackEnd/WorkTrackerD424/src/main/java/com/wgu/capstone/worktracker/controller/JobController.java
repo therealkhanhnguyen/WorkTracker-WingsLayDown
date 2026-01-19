@@ -34,7 +34,7 @@ public class JobController {
     }
 
     //Read by id
-    @GetMapping("{/id}")
+    @GetMapping("/{id}")
     public JobRespone getById(@PathVariable Long id){
         return JobMapper.toJobRespone(jobService.getJob(id));
     }
