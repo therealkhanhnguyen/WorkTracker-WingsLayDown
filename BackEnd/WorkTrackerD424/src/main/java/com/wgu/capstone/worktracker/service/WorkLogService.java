@@ -63,4 +63,13 @@ public class WorkLogService {
 
         return workLogRepository.save(workLog);
     }
+
+    public List<WorkLog> listByJob(Long jobId){
+        if (!jobRepository.existsById(jobId)) {
+            throw new NotFoundException("Job not found:" + jobId);
+        }
+        return workLogRepository.findByJob_IdOrderByStartTimeDesc(jobId);
+    }
+
+
 }
