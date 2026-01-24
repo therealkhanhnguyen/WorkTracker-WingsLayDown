@@ -1,14 +1,16 @@
 package com.wgu.capstone.worktracker.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
+import jakarta.persistence.*;
 
 import java.time.Instant;
 
 @MappedSuperclass
-public class AuditableEntity {
+public abstract class AuditableEntity {
+
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Long id;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -34,4 +36,8 @@ public class AuditableEntity {
     public Instant getUpdatedAt() {
         return updatedAt;
     }
+
+//    public Long getId() {
+//        return id;
+//    }
 }

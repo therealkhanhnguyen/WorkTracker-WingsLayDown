@@ -64,4 +64,16 @@ public class JobController {
         Job updated = jobService.updateJob(id, request.getStatus());
         return JobMapper.toJobRespone(updated);
     }
+
+    @PatchMapping("/{id}/request-inspection")
+    public JobRespone requestInspection (@PathVariable Long id){
+        Job updated = jobService.requestInspection(id);
+        return JobMapper.toJobRespone(updated);
+    }
+
+    @PatchMapping("/{id}/request-final")
+    public JobRespone requestFinal (@PathVariable Long id){
+        Job updated = jobService.requestFinal(id);
+        return JobMapper.toJobRespone(updated);
+    }
 }

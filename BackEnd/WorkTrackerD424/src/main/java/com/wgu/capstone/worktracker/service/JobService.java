@@ -119,4 +119,24 @@ public class JobService {
             throw new BadRequestException("Invalid status transition to " + next);
         }
     }
+
+    @Transactional
+    public Job requestInspection(Long jobId){
+        Job job = getJob(jobId);
+        if (job.getStatus() != JobStatus.IN_WORK){
+            throw new BadRequestException("Job must be IN_WORK to request inspection ");
+        }
+        job.setStatus(JobStatus.READY_FOR_INSPECTION);
+        return jobRepository.save(job);
+    }
+
+    @Transactional
+    public Job requestFinal(Long jobId){
+        Job job = getJob(jobId);
+        if (job.getStatus() != JobStatus.REWORK_REQUESTED && job.getStatus() != JobStatus.IN_WORK){
+            throw new BadRequestException("Job must be REWORK_REQUEST (or IN_WORK) to request final");
+        }
+        job.setStatus(JobStatus.READY_FOR_FINAL);
+        return jobRepository.save(job);
+    }
 }
