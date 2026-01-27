@@ -1,0 +1,44 @@
+.layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 16px;
+  padding: 16px;
+}
+
+.panel {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.panel button {
+  width: 100%;
+  text-align: left;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+
+.canvas {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.wing {
+  width: 100%;
+  height: auto;
+}
+
+svg rect {
+  stroke: #111827;
+  stroke-width: 2;
+  cursor: pointer;
+}
+
+svg rect:hover {
+  opacity: 0.85;
+}

@@ -1,0 +1,37 @@
+<div class="layout">
+  <div class="panel">
+    <h2>Wing Sections</h2>
+
+    <div *ngIf="sections.length === 0">
+      Loading wing sections...
+    </div>
+
+    <ul>
+      <li *ngFor="let s of sections">
+        <button (click)="selectedSectionId = s.id">
+          {{ s.id }} — {{ s.name }}
+        </button>
+      </li>
+    </ul>
+
+    <div class="selected" *ngIf="selectedSectionId">
+      Selected: <b>{{ selectedSectionId }}</b>
+    </div>
+  </div>
+
+  <div class="canvas">
+    <!-- Placeholder SVG (we’ll replace with your real wing SVG) -->
+    <svg viewBox="0 0 800 300" class="wing">
+      <!-- Each region must have id = svgRegionId from DB -->
+      <rect id="WS_0018YL_R" x="40"  y="70" width="140" height="60"
+            [attr.fill]="fillFor('WS_0018YL_R')" (click)="onRegionClick('WS_0018YL_R')" />
+      <rect id="WS_0022YL_R" x="200" y="70" width="140" height="60"
+            [attr.fill]="fillFor('WS_0022YL_R')" (click)="onRegionClick('WS_0022YL_R')" />
+      <rect id="WS_0036YL_R" x="360" y="70" width="140" height="60"
+            [attr.fill]="fillFor('WS_0036YL_R')" (click)="onRegionClick('WS_0036YL_R')" />
+
+      <!-- outline -->
+      <rect x="20" y="40" width="760" height="220" fill="none" stroke="#111827" stroke-width="2"/>
+    </svg>
+  </div>
+</div>
