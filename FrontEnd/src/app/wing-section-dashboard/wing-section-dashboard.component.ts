@@ -23,7 +23,7 @@ export class WingSectionDashboardComponent implements OnInit {
   constructor(private wingSectionsApi: WingSectionsApiService) {}
 
   ngOnInit(): void {
-    this.wingSectionsApi.list().subscribe({
+    this.wingSectionsApi.getAll().subscribe({
       next: (data) => {
         this.sections = data;
         // default color for each svg region

@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from './api.config';
 
 
 export interface WingSectionResponse {
@@ -14,10 +15,11 @@ export interface WingSectionResponse {
   providedIn: 'root'
 })
 export class WingSectionsApiService {
+  private readonly baseUrl = '/wing-sections';
 
   constructor(private http: HttpClient) { }
 
-  list(): Observable<WingSectionResponse[]>{
-    return this.http.get<WingSectionResponse[]>('/api/wing-sections')
+  getAll(): Observable<WingSectionResponse[]>{
+    return this.http.get<WingSectionResponse[]>(`${API_BASE_URL}/wing-sections`);
   }
 }

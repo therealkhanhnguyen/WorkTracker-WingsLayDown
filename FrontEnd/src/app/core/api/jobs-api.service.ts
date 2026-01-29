@@ -25,7 +25,7 @@ export interface JobCreateRequest {
   providedIn: 'root',
 })
 export class JobsApiService {
-  private readonly baseUrl = `${API_BASE_URL}/api/jobs`;
+  private readonly baseUrl = `${API_BASE_URL}/jobs`;
 
   constructor(private http: HttpClient) {}
 
