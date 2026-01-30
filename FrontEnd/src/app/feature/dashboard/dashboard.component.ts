@@ -1,98 +1,93 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, effect, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
+
 import { WingSection } from '../../core/models/wing-section.model';
 import { WingSectionsApiService } from '../../core/api/wing-sections-api.service';
-import { JobResponse, JobsApiService } from '../../core/api/jobs-api.service';
 
+import { JobsApiService, JobResponse } from '../../core/api/jobs-api.service';
 
+type StatusBucket = 'empty' | 'created' | 'in_work' | 'inspection' | 'completed';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css'
+  styleUrl: './dashboard.component.css',
 })
 export class DashboardComponent {
+  // ---------- state ----------
   wingSections = signal<WingSection[]>([]);
   selectedId = signal<string | null>(null);
-  jobsLoading = signal(false);
-  readonly Math = Math;
-  
-  // row(i: number): number {
-  // return Math.floor(i / 4);
-  // }
 
-  // Jobs currently shown (for the selected wing section)
-  selectedJobs = signal<JobResponse[]>([]);
+  jobsLoading = signal<boolean>(false);
+  allJobs = signal<JobResponse[]>([]);
 
-    // helper for SVG lookup
+  // ---------- lookups ----------
+  // svgRegionId -> WingSection
   bySvgId = computed(() => {
     const map = new Map<string, WingSection>();
     for (const ws of this.wingSections()) map.set(ws.svgRegionId, ws);
     return map;
   });
 
-    // ---- Status priority (higher = more urgent) ----
-  // Adjust if you want different behavior.
-  private readonly statusPriority: Record<string, number> = {
-    REWORK_REQUESTED: 90,
-    INSPECTION_IN_PROGRESS: 80,
-    READY_FOR_INSPECTION: 70,
-    IN_WORK: 60,
-    CREATED: 50,
-    READY_FOR_FINAL: 40,
-    FINAL_APPROVED: 20,
-    COMPLETED: 10,
-  };
+  // wingSectionId -> Job[]
+  jobsByWingSectionId = computed(() => {
+    const map = new Map<string, JobResponse[]>();
+    for (const job of this.allJobs()) {
+      const key = job.wingSectionId;
+      if (!key) continue;
 
-  // quick lookup: svgRegionId -> wingSection
-//   bySvgId = computed(() => {
-//     const map = new Map<string, WingSection>();
-//     for (const ws of this.wingSections()) map.set(ws.svgRegionId, ws);
-//     return map;
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(job);
+    }
+    return map;
+  });
 
-// });
+  // jobs for currently selected wing section
+  selectedJobs = computed(() => {
+    const id = this.selectedId();
+    if (!id) return [];
+    return this.jobsByWingSectionId().get(id) ?? [];
+  });
 
-    constructor(
-      private wingSectionService: WingSectionsApiService,
-      private jobsApi : JobsApiService
-    ) {
+  constructor(
+    private wingSectionService: WingSectionsApiService,
+    private jobsApi: JobsApiService
+  ) {
+    // 1) load wing sections
     this.wingSectionService.getAll().subscribe({
-      next: (data) => {
+      next: (data: WingSection[]) => {
         this.wingSections.set(data);
-        // auto-select first one
-        if (data.length && !this.selectedId()) this.selectedId.set(data[0].id);
+        if (data.length && !this.selectedId()) {
+          this.selectedId.set(data[0].id);
+        }
       },
       error: (err) => console.error('Failed to load wing sections', err),
     });
 
-    // Whenever selectedId changes -> load jobs for that wing section
-   effect(() => {
-      const wsId = this.selectedId();
-      if (!wsId) return;
-
-      this.jobsLoading.set(true);
-      this.jobsApi.list(undefined, wsId).subscribe({
-        next: (jobs) => {
-          this.selectedJobs.set(jobs);
-          this.jobsLoading.set(false);
-        },
-        error: (err) => {
-          console.error('Failed to load jobs', err);
-          this.selectedJobs.set([]);
-          this.jobsLoading.set(false);
-        },
-      });
+    // 2) load ALL jobs once (best for coloring all rectangles)
+    this.jobsLoading.set(true);
+    this.jobsApi.list().subscribe({
+      next: (jobs: JobResponse[]) => {
+        this.allJobs.set(jobs);
+        this.jobsLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Failed to load jobs', err);
+        this.allJobs.set([]);
+        this.jobsLoading.set(false);
+      },
     });
   }
 
-    // used by template (Math is blocked in templates sometimes)
+  // ---------- SVG helpers ----------
   row(i: number): number {
     return Math.floor(i / 4);
   }
 
-    selectById(id: string) {
+  // ---------- selection handlers ----------
+  selectById(id: string) {
     this.selectedId.set(id);
   }
 
@@ -105,51 +100,70 @@ export class DashboardComponent {
     return this.selectedId() === ws.id;
   }
 
-  // ----- NEW: compute worst status for a wing section -----
-  private worstStatusForWingSection(wingSectionId: string, jobs: JobResponse[]): string | null {
-    const related = jobs.filter((j) => j.wingSectionId === wingSectionId);
-    if (!related.length) return null;
+  // ---------- status bucketing ----------
+  private bucket(statusRaw: string | null | undefined): StatusBucket {
+    const s = (statusRaw ?? '').toUpperCase();
 
-    let worst = related[0].status;
-    let worstScore = this.statusPriority[worst] ?? 0;
+    // Completed bucket (FINAL_APPROVED treated like completed per request)
+    if (s === 'COMPLETED' || s === 'FINAL_APPROVED') return 'completed';
 
-    for (const j of related) {
-      const score = this.statusPriority[j.status] ?? 0;
-      if (score > worstScore) {
-        worst = j.status;
-        worstScore = score;
+    // Inspection bucket
+    if (
+      s === 'READY_FOR_INSPECTION' ||
+      s === 'INSPECTION_IN_PROGRESS' ||
+      s === 'READY_FOR_FINAL'
+    ) {
+      return 'inspection';
+    }
+
+    // In-work bucket
+    if (s === 'IN_WORK' || s === 'REWORK_REQUESTED') return 'in_work';
+
+    // Created bucket
+    if (s === 'CREATED') return 'created';
+
+    // Anything unknown -> treat as created (safer than empty)
+    return 'created';
+  }
+
+  private priority(b: StatusBucket): number {
+    // "most urgent wins"
+    // inspection > in_work > created > completed > empty
+    switch (b) {
+      case 'inspection':
+        return 4;
+      case 'in_work':
+        return 3;
+      case 'created':
+        return 2;
+      case 'completed':
+        return 1;
+      default:
+        return 0;
+    }
+  }
+
+  private rollupBucket(jobs: JobResponse[]): StatusBucket {
+    if (!jobs || jobs.length === 0) return 'empty';
+
+    let best: StatusBucket = 'empty';
+    let bestP = 0;
+
+    for (const j of jobs) {
+      const b = this.bucket(j.status);
+      const p = this.priority(b);
+      if (p > bestP) {
+        bestP = p;
+        best = b;
       }
     }
-    return worst;
+    return best;
   }
 
-  // ----- NEW: map wingSectionId -> worstStatus (for all sections) -----
-  // If you only load selected wing’s jobs, this will color only the selected wing.
-  // Next step we'll load jobs for ALL wing sections at once (optional).
-  wingStatusMap = computed(() => {
-    const map = new Map<string, string | null>();
-
-    const sections = this.wingSections();
-    const jobs = this.selectedJobs(); // currently only selected wing’s jobs
-
-    for (const ws of sections) {
-      map.set(ws.id, this.worstStatusForWingSection(ws.id, jobs));
-    }
-    return map;
-  });
-
-  // ----- NEW: status -> CSS class -----
-  statusClass(ws: WingSection): string {
-    const status = this.wingStatusMap().get(ws.id);
-
-    if (!status) return 'status-none';
-
-    if (status === 'REWORK_REQUESTED') return 'status-red';
-    if (status === 'READY_FOR_INSPECTION' || status === 'INSPECTION_IN_PROGRESS') return 'status-yellow';
-    if (status === 'IN_WORK' || status === 'CREATED') return 'status-gray';
-    if (status === 'COMPLETED' || status === 'FINAL_APPROVED') return 'status-green';
-
-    return 'status-gray';
+  // Used by template for rectangle CSS classes
+  statusClassFor(wsId: string): string {
+    const jobs = this.jobsByWingSectionId().get(wsId) ?? [];
+    const bucket = this.rollupBucket(jobs);
+    return `status-${bucket}`; // status-created, status-in_work, status-inspection, status-completed, status-empty
   }
-
 }

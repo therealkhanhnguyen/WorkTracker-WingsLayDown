@@ -1,7 +1,7 @@
 <h1 class="title">WorkTracker Dashboard</h1>
 
 <div class="layout">
-  <!-- LEFT -->
+  <!-- LEFT: Wing sections list -->
   <section class="panel">
     <h2>Wing Sections</h2>
 
@@ -17,47 +17,51 @@
     </ul>
   </section>
 
-  <!-- RIGHT -->
-  <section class="panel right-panel">
-    <!-- TOP: SVG -->
-    <div class="wing-map">
-      <h2>Wing Map</h2>
+  <!-- RIGHT: Wing Map + Jobs -->
+  <section class="panel svg-panel">
+    <h2>Wing Map</h2>
 
-      <svg viewBox="0 0 900 400" class="wing-svg">
-        <rect x="20" y="40" width="860" height="320" class="frame"></rect>
+    <!-- taller viewBox so we have bottom breathing room -->
+    <svg viewBox="0 0 900 460" class="wing-svg" aria-label="Wing map">
+      <!-- Outer frame (taller to create bottom padding inside) -->
+      <rect x="20" y="40" width="860" height="360" class="frame"></rect>
 
-        <ng-container *ngFor="let ws of wingSections(); let i = index">
-          <g>
-            <rect
-              [attr.id]="ws.svgRegionId"
-              class="region"
-              [class.selected]="isSelected(ws)"
-              [attr.x]="60 + (i % 4) * 200"
-              [attr.y]="80 + row(i) * 90"
-              width="160"
-              height="60"
-              rx="8"
-              (click)="selectBySvg(ws.svgRegionId)">
-            </rect>
+      <!-- Regions -->
+      <ng-container *ngFor="let ws of wingSections(); let i = index">
+        <g>
+          <rect
+            [attr.id]="ws.svgRegionId"
+            class="region"
+            [ngClass]="statusClassFor(ws.id)"
+            [class.selected]="isSelected(ws)"
+            [attr.x]="60 + (i % 4) * 200"
+            [attr.y]="80 + row(i) * 90"
+            width="160"
+            height="60"
+            rx="10"
+            (click)="selectBySvg(ws.svgRegionId)">
+          </rect>
 
-            <text
-              class="label"
-              [attr.x]="60 + (i % 4) * 200 + 10"
-              [attr.y]="80 + row(i) * 90 + 38">
-              {{ ws.name }}
-            </text>
-          </g>
-        </ng-container>
-      </svg>
-    </div>
+          <text
+            class="label"
+            [attr.x]="60 + (i % 4) * 200 + 14"
+            [attr.y]="80 + row(i) * 90 + 38">
+            {{ ws.name }}
+          </text>
+        </g>
+      </ng-container>
+    </svg>
 
-    <!-- BOTTOM: Jobs -->
+    <!-- Divider -->
+    <div class="divider"></div>
+
+    <!-- Jobs list -->
     <div class="jobs-panel">
       <h3>Jobs for selected Wing Section</h3>
 
-      <div *ngIf="jobsLoading()">Loading jobs…</div>
+      <div *ngIf="jobsLoading()" class="muted">Loading jobs…</div>
 
-      <div *ngIf="!jobsLoading() && selectedJobs().length === 0">
+      <div *ngIf="!jobsLoading() && selectedJobs().length === 0" class="muted">
         No jobs for this wing section yet.
       </div>
 
@@ -66,10 +70,14 @@
           <div class="job-title">
             #{{ job.id }} — {{ job.title }}
           </div>
+
           <div class="job-meta">
             Status: <strong>{{ job.status }}</strong>
           </div>
-          <div class="job-desc">{{ job.description }}</div>
+
+          <div class="job-desc">
+            {{ job.description }}
+          </div>
         </li>
       </ul>
     </div>
