@@ -77,3 +77,120 @@
   overflow: visible;   /* key */
   display: block;
 }
+
+
+.region {
+  stroke: #111;
+  stroke-width: 2;
+  cursor: pointer;
+}
+
+/* selection outline (independent of status) */
+.region.selected {
+  stroke-width: 4;
+}
+
+/* status colors */
+.status-none { fill: #e5e7eb; }   /* light gray */
+.status-gray { fill: #9ca3af; }
+.status-yellow { fill: #fbbf24; }
+.status-red { fill: #ef4444; }
+.status-green { fill: #22c55e; }
+.jobs-panel {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.jobs-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.job-card {
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin: 10px 0;
+  background: #fff;
+}
+
+.job-title {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.job-meta {
+  font-size: 14px;
+  opacity: 0.8;
+  margin-bottom: 6px;
+}
+
+.job-desc {
+  font-size: 14px;
+}
+
+/* Layout */
+.layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 16px;
+}
+
+.panel {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+/* RIGHT side */
+.right-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Wing map */
+.wing-map {
+  border-bottom: 1px solid #e5e5e5;
+  padding-bottom: 16px;
+}
+
+.wing-svg {
+  width: 100%;
+  height: auto;
+}
+
+/* Jobs section */
+.jobs-panel {
+  padding-top: 8px;
+}
+
+.jobs-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.job-card {
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.job-title {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.job-meta {
+  font-size: 14px;
+  opacity: 0.8;
+  margin-bottom: 6px;
+}
+
+.job-desc {
+  font-size: 14px;
+}
