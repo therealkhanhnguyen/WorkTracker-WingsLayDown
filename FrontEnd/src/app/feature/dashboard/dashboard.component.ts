@@ -8,6 +8,8 @@ import { JobsApiService, JobResponse } from '../../core/api/jobs-api.service';
 
 type StatusBucket = 'empty' | 'created' | 'in_work' | 'inspection' | 'completed';
 
+
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -16,12 +18,18 @@ type StatusBucket = 'empty' | 'created' | 'in_work' | 'inspection' | 'completed'
   styleUrl: './dashboard.component.css',
 })
 export class DashboardComponent {
+
+
   // ---------- state ----------
   wingSections = signal<WingSection[]>([]);
   selectedId = signal<string | null>(null);
 
   jobsLoading = signal<boolean>(false);
   allJobs = signal<JobResponse[]>([]);
+
+  selectedJobId = signal<number | null>(null);
+  actionLoading = signal<boolean>(false);
+  actionError = signal<string | null>(null);
 
   // ---------- lookups ----------
   // svgRegionId -> WingSection
@@ -166,4 +174,87 @@ export class DashboardComponent {
     const bucket = this.rollupBucket(jobs);
     return `status-${bucket}`; // status-created, status-in_work, status-inspection, status-completed, status-empty
   }
+
+  selectJob(id: number) {
+  this.selectedJobId.set(id);
+  this.actionError.set(null);
+}
+
+isJobSelected(job: JobResponse): boolean {
+  return this.selectedJobId() === job.id;
+}
+
+private refreshJobs() {
+  this.jobsLoading.set(true);
+  this.jobsApi.list().subscribe({
+    next: (jobs) => {
+      this.allJobs.set(jobs);
+      this.jobsLoading.set(false);
+    },
+    error: (err) => {
+      console.error('Failed to reload jobs', err);
+      this.jobsLoading.set(false);
+    },
+  });
+}
+
+updateJobStatus(jobId: number, status: string) {
+  this.actionLoading.set(true);
+  this.actionError.set(null);
+
+  this.jobsApi.updateStatus(jobId, status).subscribe({
+    next: () => {
+      this.actionLoading.set(false);
+      this.refreshJobs();
+    },
+    error: (err) => {
+      console.error('Status update failed', err);
+      this.actionLoading.set(false);
+      // show backend message if it exists
+      const msg =
+        err?.error?.message ||
+        err?.error?.error ||
+        'Status update failed (check console/server logs).';
+      this.actionError.set(msg);
+    },
+  });
+}
+
+requestInspection(jobId: number) {
+  this.actionLoading.set(true);
+  this.actionError.set(null);
+
+  this.jobsApi.requestInspection(jobId).subscribe({
+    next: () => {
+      this.actionLoading.set(false);
+      this.refreshJobs();
+    },
+    error: (err) => {
+      console.error('Request inspection failed', err);
+      this.actionLoading.set(false);
+      const msg = err?.error?.message || 'Request inspection failed.';
+      this.actionError.set(msg);
+    },
+  });
+}
+
+requestFinal(jobId: number) {
+  this.actionLoading.set(true);
+  this.actionError.set(null);
+
+  this.jobsApi.requestFinal(jobId).subscribe({
+    next: () => {
+      this.actionLoading.set(false);
+      this.refreshJobs();
+    },
+    error: (err) => {
+      console.error('Request final failed', err);
+      this.actionLoading.set(false);
+      const msg = err?.error?.message || 'Request final failed.';
+      this.actionError.set(msg);
+    },
+  });
+}
+
+
 }

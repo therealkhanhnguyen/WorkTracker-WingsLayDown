@@ -1,16 +1,30 @@
-/* Page title */
-.title {
-  margin: 16px 0 18px;
-  font-size: 48px;
-  font-weight: 800;
+/* ---- Fit the whole dashboard to the viewport ---- */
+:host {
+  display: block;
+  height: 100vh;           /* full screen */
+  overflow: hidden;        /* stop page scrolling */
+  padding: 16px;
+  box-sizing: border-box;
 }
 
-/* Main 2-column layout */
+/* Page title */
+.title {
+  margin: 0 0 12px;        /* tighter to save vertical space */
+  font-size: 36px;         /* smaller so content fits */
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+/* Main layout (Wing Sections hidden -> 1 column) */
 .layout {
   display: grid;
-  grid-template-columns: 360px 1fr;
+  grid-template-columns: 1fr;
   gap: 18px;
   align-items: start;
+
+  /* take remaining height under title */
+  height: calc(100vh - 16px - 16px - 60px);
+  /* (top padding) (bottom padding) (approx title height) */
 }
 
 /* Shared panel style */
@@ -22,47 +36,29 @@
   box-shadow: 0 1px 2px rgba(0,0,0,0.04);
 }
 
-/* Left list */
-.list {
-  list-style: none;
-  padding: 0;
-  margin: 12px 0 0;
-  display: grid;
-  gap: 10px;
+/* Hide left wing section list */
+.layout > section.panel:first-child {
+  display: none;
 }
 
-.list-item {
-  width: 100%;
-  text-align: left;
-  border: 1px solid #e5e7eb;
-  background: #fafafa;
-  padding: 12px 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: transform 0.03s ease, background 0.15s ease, border-color 0.15s ease;
+/* Right panel becomes a vertical layout with internal scroll area */
+.svg-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0; /* IMPORTANT for allowing children to scroll */
 }
 
-.list-item:hover {
-  background: #f3f4f6;
-  border-color: #d1d5db;
-}
-
-.list-item.selected {
-  border-color: #111827;
-  box-shadow: inset 0 0 0 2px #111827;
-  background: #f9fafb;
-}
-
-/* Right panel */
 .svg-panel h2 {
   margin-bottom: 10px;
 }
 
-/* SVG spacing (padding-like space top/bottom) */
+/* SVG spacing + height cap so jobs can fit on screen */
 .wing-svg {
   display: block;
   width: 100%;
   height: auto;
+  max-height: 52vh; /* adjust to 48vh..58vh if you want */
   margin-top: 12px;
   margin-bottom: 12px;
 }
@@ -78,7 +74,7 @@
 .region {
   stroke: #111;
   stroke-width: 2px;
-  fill: #e5e7eb; /* default */
+  fill: #e5e7eb;
   cursor: pointer;
 }
 
@@ -86,12 +82,14 @@
   filter: brightness(0.97);
 }
 
-/* Selected region */
+/* Make sure selected always stands out */
 .region.selected {
   stroke-width: 4px;
+  stroke: #111;
+  filter: drop-shadow(0 2px 0 rgba(0,0,0,0.15));
 }
 
-/* Status fills (these depend on your statusClassFor mapping) */
+/* Status fills */
 .status-empty {
   fill: #e5e7eb;
 }
@@ -117,17 +115,24 @@
   font-size: 18px;
   font-weight: 600;
   fill: #111;
-  pointer-events: none; /* makes clicking easier on the rect */
+  pointer-events: none;
 }
 
 /* Divider */
 .divider {
   height: 1px;
   background: #e5e7eb;
-  margin: 14px 0 14px;
+  margin: 10px 0 10px; /* tighter */
 }
 
-/* Jobs panel */
+/* Jobs panel: scrolls internally */
+.jobs-panel {
+  flex: 1;
+  min-height: 0; /* IMPORTANT */
+  overflow: auto;
+  padding-right: 6px; /* room for scrollbar */
+}
+
 .jobs-panel h3 {
   margin: 0 0 10px;
   font-size: 18px;
@@ -151,6 +156,12 @@
   border-radius: 12px;
   padding: 12px;
   background: #fbfbfb;
+  cursor: pointer;
+}
+
+.job-card.job-selected {
+  border-color: #111827;
+  box-shadow: inset 0 0 0 2px #111827;
 }
 
 .job-title {
@@ -168,21 +179,45 @@
   font-size: 14px;
   color: #111827;
 }
-/* Make sure selected always stands out, even on dark fills */
-.region.selected {
-  stroke-width: 4px;
-  stroke: #111;
-  filter: drop-shadow(0 2px 0 rgba(0,0,0,0.15));
+
+/* Actions */
+.job-actions {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-/* Improve label contrast on darker fills (orange/green) */
-.status-in_work ~ .label,
-.status-completed ~ .label {
-  fill: #111;
+.btn {
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
 }
 
-/* Optional: make created/inspection labels slightly dimmer if you want */
-.status-created ~ .label,
-.status-inspection ~ .label {
-  fill: #111;
+.btn:hover {
+  background: #f3f4f6;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  border-color: #111827;
+  background: #111827;
+  color: #fff;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.05);
+}
+
+.error {
+  width: 100%;
+  color: #b91c1c;
+  font-size: 14px;
 }

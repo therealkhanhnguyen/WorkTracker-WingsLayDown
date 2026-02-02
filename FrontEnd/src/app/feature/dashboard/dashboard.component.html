@@ -66,19 +66,72 @@
       </div>
 
       <ul class="jobs-list" *ngIf="!jobsLoading() && selectedJobs().length > 0">
-        <li class="job-card" *ngFor="let job of selectedJobs()">
-          <div class="job-title">
-            #{{ job.id }} — {{ job.title }}
-          </div>
+        <li
+  class="job-card"
+  [class.job-selected]="isJobSelected(job)"
+  *ngFor="let job of selectedJobs()"
+  (click)="selectJob(job.id)"
+>
+  <div class="job-title">
+    #{{ job.id }} — {{ job.title }}
+  </div>
 
-          <div class="job-meta">
-            Status: <strong>{{ job.status }}</strong>
-          </div>
+  <div class="job-meta">
+    Status: <strong>{{ job.status }}</strong>
+  </div>
 
-          <div class="job-desc">
-            {{ job.description }}
-          </div>
-        </li>
+  <div class="job-desc">
+    {{ job.description }}
+  </div>
+
+  <!-- Actions: only show when THIS job is selected -->
+  <div class="job-actions" *ngIf="isJobSelected(job)">
+    <div class="error" *ngIf="actionError()">{{ actionError() }}</div>
+
+    <button
+      class="btn"
+      [disabled]="actionLoading()"
+      (click)="$event.stopPropagation(); updateJobStatus(job.id, 'IN_WORK')">
+      Start Work
+    </button>
+
+    <button
+      class="btn"
+      [disabled]="actionLoading()"
+      (click)="$event.stopPropagation(); requestInspection(job.id)">
+      Request Inspection
+    </button>
+
+    <button
+      class="btn"
+      [disabled]="actionLoading()"
+      (click)="$event.stopPropagation(); updateJobStatus(job.id, 'INSPECTION_IN_PROGRESS')">
+      Start Inspection
+    </button>
+
+    <button
+      class="btn"
+      [disabled]="actionLoading()"
+      (click)="$event.stopPropagation(); requestFinal(job.id)">
+      Request Final
+    </button>
+
+    <button
+      class="btn"
+      [disabled]="actionLoading()"
+      (click)="$event.stopPropagation(); updateJobStatus(job.id, 'FINAL_APPROVED')">
+      Approve Final
+    </button>
+
+    <button
+      class="btn btn-primary"
+      [disabled]="actionLoading()"
+      (click)="$event.stopPropagation(); updateJobStatus(job.id, 'COMPLETED')">
+      Complete
+    </button>
+  </div>
+</li>
+
       </ul>
     </div>
   </section>

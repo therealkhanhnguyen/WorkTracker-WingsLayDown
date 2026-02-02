@@ -53,4 +53,9 @@ export class JobsApiService {
     return this.http.patch<JobResponse>(`${this.baseUrl}/${id}/request-final`, {});
   }
 
+  requestInspection(id: number): Observable<JobResponse> {
+  return this.http.patch<JobResponse>(`${this.baseUrl}/${id}/request-inspection`, {});
+}
+
+
 }
