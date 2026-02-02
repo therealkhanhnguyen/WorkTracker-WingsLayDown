@@ -76,4 +76,11 @@ public class JobController {
         Job updated = jobService.requestFinal(id);
         return JobMapper.toJobRespone(updated);
     }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        jobService.deleteJob(id);
+    }
+
+
 }

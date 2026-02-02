@@ -189,4 +189,10 @@ public class JobService {
         return jobRepository.save(job);
     }
 
+    public void deleteJob(Long jobId) {
+        Job job = getJob(jobId); // throws NotFoundException if missing
+        jobRepository.delete(job);
+    }
+
+
 }

@@ -6,7 +6,7 @@ import { WingSectionsApiService } from '../../core/api/wing-sections-api.service
 
 import { JobsApiService, JobResponse } from '../../core/api/jobs-api.service';
 
-type StatusBucket = 'empty' | 'created' | 'in_work' | 'inspection' | 'completed';
+type StatusBucket = 'empty' | 'created' | 'in_work' | 'inspection' | 'ready_for_final' | 'completed';
 
 
 
@@ -109,47 +109,38 @@ export class DashboardComponent {
   }
 
   // ---------- status bucketing ----------
-  private bucket(statusRaw: string | null | undefined): StatusBucket {
-    const s = (statusRaw ?? '').toUpperCase();
+private bucket(statusRaw: string | null | undefined): StatusBucket {
+  const s = (statusRaw ?? '').toUpperCase();
 
-    // Completed bucket (FINAL_APPROVED treated like completed per request)
-    if (s === 'COMPLETED' || s === 'FINAL_APPROVED') return 'completed';
+  if (s === 'COMPLETED' || s === 'FINAL_APPROVED') return 'completed';
+  if (s === 'READY_FOR_FINAL') return 'ready_for_final';
+  if (s === 'READY_FOR_INSPECTION') return 'inspection';
+  if (s === 'IN_WORK') return 'in_work';
+  if (s === 'CREATED') return 'created';
 
-    // Inspection bucket
-    if (
-      s === 'READY_FOR_INSPECTION' ||
-      s === 'INSPECTION_IN_PROGRESS' ||
-      s === 'READY_FOR_FINAL'
-    ) {
-      return 'inspection';
-    }
+  return 'created';
+}
 
-    // In-work bucket
-    if (s === 'IN_WORK' || s === 'REWORK_REQUESTED') return 'in_work';
 
-    // Created bucket
-    if (s === 'CREATED') return 'created';
 
-    // Anything unknown -> treat as created (safer than empty)
-    return 'created';
+
+private priority(b: StatusBucket): number {
+  switch (b) {
+    case 'ready_for_final':
+      return 5;
+    case 'inspection':
+      return 4;
+    case 'in_work':
+      return 3;
+    case 'created':
+      return 2;
+    case 'completed':
+      return 1;
+    default:
+      return 0;
   }
+}
 
-  private priority(b: StatusBucket): number {
-    // "most urgent wins"
-    // inspection > in_work > created > completed > empty
-    switch (b) {
-      case 'inspection':
-        return 4;
-      case 'in_work':
-        return 3;
-      case 'created':
-        return 2;
-      case 'completed':
-        return 1;
-      default:
-        return 0;
-    }
-  }
 
   private rollupBucket(jobs: JobResponse[]): StatusBucket {
     if (!jobs || jobs.length === 0) return 'empty';
@@ -254,6 +245,49 @@ requestFinal(jobId: number) {
       this.actionError.set(msg);
     },
   });
+}
+
+// ---- simplified flow guards ----
+// Flow: CREATED -> IN_WORK -> READY_FOR_INSPECTION -> READY_FOR_FINAL -> FINAL_APPROVED
+
+canStartWork(job: JobResponse): boolean {
+  return (job.status ?? '').toUpperCase() === 'CREATED';
+}
+
+canRequestInspection(job: JobResponse): boolean {
+  return (job.status ?? '').toUpperCase() === 'IN_WORK';
+}
+
+canRequestFinal(job: JobResponse): boolean {
+  return (job.status ?? '').toUpperCase() === 'READY_FOR_INSPECTION';
+}
+
+canApproveFinal(job: JobResponse): boolean {
+  return (job.status ?? '').toUpperCase() === 'READY_FOR_FINAL';
+}
+
+
+// canComplete(_job: JobResponse): boolean {
+//   return false; // optional: keep "Complete" disabled for now
+// }
+
+nextStepLabel(job: JobResponse): string {
+  const s = (job.status ?? '').toUpperCase();
+
+  switch (s) {
+    case 'CREATED':
+      return 'Next: Start Work';
+    case 'IN_WORK':
+      return 'Next: Request Inspection';
+    case 'READY_FOR_INSPECTION':
+      return 'Next: Request Final';
+    case 'READY_FOR_FINAL':
+      return 'Next: Approve Final';
+    case 'FINAL_APPROVED':
+      return '✅ Done';
+    default:
+      return '';
+  }
 }
 
 
