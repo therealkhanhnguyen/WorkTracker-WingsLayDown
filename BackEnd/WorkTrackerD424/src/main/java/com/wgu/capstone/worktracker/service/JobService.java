@@ -30,29 +30,55 @@ public class JobService {
         this.userRepository = userRepository;
     }
 
-    public Job createJob(String wingSectionId,Long employeeId,String title, String description) {
+//    public Job createJob(String wingSectionId,Long employeeId,String title, String description) {
+//
+//        WingSection section = wingSectionRepository.findById(wingSectionId)
+//                .orElseThrow( ()-> new NotFoundException("WingSection Not Found"+ wingSectionId));
+//
+//        User employee = userRepository.findById(employeeId)
+//                .orElseThrow( ()-> new NotFoundException("User Not Found"+ employeeId));
+//
+//        if (employee.getRole() != Role.EMPLOYEE){
+//            throw new BadRequestException("Assigned user must have role EMPLOYEE");
+//        }
+//
+//        //only one active job per wing section
+//        boolean existActive = jobRepository.existsByWingSection_IdAndStatusNot(wingSectionId, JobStatus.COMPLETED);
+//
+//        if (existActive){
+//            throw new BadRequestException("An active job already exists for wing section " + wingSectionId);
+//        }
+//
+//        Job job = new Job(section, employee, title, description);
+//
+//        return jobRepository.save(job);
+//    }
+//simplified work flow logic
+    public Job createJob(String wingSectionId, Long employeeId, String title, String description) {
 
         WingSection section = wingSectionRepository.findById(wingSectionId)
-                .orElseThrow( ()-> new NotFoundException("WingSection Not Found"+ wingSectionId));
+                .orElseThrow(() -> new NotFoundException("WingSection Not Found " + wingSectionId));
 
-        User employee = userRepository.findById(employeeId)
-                .orElseThrow( ()-> new NotFoundException("User Not Found"+ employeeId));
+        User employee = null;
+        if (employeeId != null) {
+            employee = userRepository.findById(employeeId)
+                    .orElseThrow(() -> new NotFoundException("User Not Found " + employeeId));
 
-        if (employee.getRole() != Role.EMPLOYEE){
-            throw new BadRequestException("Assigned user must have role EMPLOYEE");
+            if (employee.getRole() != Role.EMPLOYEE) {
+                throw new BadRequestException("Assigned user must have role EMPLOYEE");
+            }
         }
 
-        //only one active job per wing section
+        // only one active job per wing section
         boolean existActive = jobRepository.existsByWingSection_IdAndStatusNot(wingSectionId, JobStatus.COMPLETED);
-
-        if (existActive){
+        if (existActive) {
             throw new BadRequestException("An active job already exists for wing section " + wingSectionId);
         }
 
         Job job = new Job(section, employee, title, description);
-
         return jobRepository.save(job);
     }
+
 
     public Job getJob(Long jobId){
         return jobRepository.findById(jobId)
@@ -90,24 +116,45 @@ public class JobService {
         return jobRepository.save(job);
     }
 
-    private void validateTransition(JobStatus current, JobStatus next){
-        if (current == next){
-            return;
-        }
+//    private void validateTransition(JobStatus current, JobStatus next){
+//        if (current == next){
+//            return;
+//        }
+//
+//        switch (current){
+//            case CREATED -> requiredNext(next, JobStatus.IN_WORK);
+//            case IN_WORK -> requiredNext(next, JobStatus.READY_FOR_INSPECTION);
+//            case READY_FOR_INSPECTION -> requiredNext(next, JobStatus.INSPECTION_IN_PROGRESS);
+//            case INSPECTION_IN_PROGRESS -> requiredNext(next, JobStatus.REWORK_REQUESTED,JobStatus.FINAL_APPROVED );
+//            case REWORK_REQUESTED -> requiredNext(next, JobStatus.IN_WORK); //employee rework
+//            case FINAL_APPROVED -> requiredNext(next, JobStatus.COMPLETED);
+//            case COMPLETED -> throw new BadRequestException("Job Status is already completed, cannot change status");
+//
+//            default -> throw new BadRequestException("unsupported job status transition");
+//
+//        }
+//    }
+// simplified workflow
+    private void validateTransition(JobStatus current, JobStatus next) {
+        if (current == next) return;
 
-        switch (current){
+        switch (current) {
             case CREATED -> requiredNext(next, JobStatus.IN_WORK);
+
             case IN_WORK -> requiredNext(next, JobStatus.READY_FOR_INSPECTION);
-            case READY_FOR_INSPECTION -> requiredNext(next, JobStatus.INSPECTION_IN_PROGRESS);
-            case INSPECTION_IN_PROGRESS -> requiredNext(next, JobStatus.REWORK_REQUESTED,JobStatus.FINAL_APPROVED );
-            case REWORK_REQUESTED -> requiredNext(next, JobStatus.IN_WORK); //employee rework
-            case FINAL_APPROVED -> requiredNext(next, JobStatus.COMPLETED);
-            case COMPLETED -> throw new BadRequestException("Job Status is already completed, cannot change status");
 
-            default -> throw new BadRequestException("unsupported job status transition");
+            case READY_FOR_INSPECTION -> requiredNext(next, JobStatus.READY_FOR_FINAL);
 
+            case READY_FOR_FINAL -> requiredNext(next, JobStatus.FINAL_APPROVED);
+
+            case FINAL_APPROVED -> throw new BadRequestException("Job is FINAL_APPROVED. No further changes in simplified flow.");
+
+            case COMPLETED -> throw new BadRequestException("Job is already COMPLETED, cannot change status");
+
+            default -> throw new BadRequestException("Unsupported job status transition");
         }
     }
+
 
 
     private void requiredNext(JobStatus next, JobStatus... allowed){
@@ -131,12 +178,15 @@ public class JobService {
     }
 
     @Transactional
-    public Job requestFinal(Long jobId){
+    public Job requestFinal(Long jobId) {
         Job job = getJob(jobId);
-        if (job.getStatus() != JobStatus.REWORK_REQUESTED && job.getStatus() != JobStatus.IN_WORK){
-            throw new BadRequestException("Job must be REWORK_REQUEST (or IN_WORK) to request final");
+
+        if (job.getStatus() != JobStatus.READY_FOR_INSPECTION) {
+            throw new BadRequestException("Job must be READY_FOR_INSPECTION to request final");
         }
+
         job.setStatus(JobStatus.READY_FOR_FINAL);
         return jobRepository.save(job);
     }
+
 }
