@@ -194,5 +194,23 @@ public class JobService {
         jobRepository.delete(job);
     }
 
+    public Job updateJobDetails(Long jobId, Long assignedEmployeeId, String title, String description) {
+        Job job = getJob(jobId);
+
+        User employee = userRepository.findById(assignedEmployeeId)
+                .orElseThrow(() -> new NotFoundException("User Not Found " + assignedEmployeeId));
+
+        if (employee.getRole() != Role.EMPLOYEE) {
+            throw new BadRequestException("Assigned user must have role EMPLOYEE");
+        }
+
+        job.setAssignedEmployee(employee);
+        job.setTitle(title);
+        job.setDescription(description);
+
+        return jobRepository.save(job);
+    }
+
+
 
 }

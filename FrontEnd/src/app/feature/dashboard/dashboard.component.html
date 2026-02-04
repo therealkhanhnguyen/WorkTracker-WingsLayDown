@@ -21,12 +21,10 @@
   <section class="panel svg-panel">
     <h2>Wing Map</h2>
 
-    <!-- taller viewBox so we have bottom breathing room -->
+    <!-- Wing SVG -->
     <svg viewBox="0 0 900 460" class="wing-svg" aria-label="Wing map">
-      <!-- Outer frame (taller to create bottom padding inside) -->
       <rect x="20" y="40" width="860" height="360" class="frame"></rect>
 
-      <!-- Regions -->
       <ng-container *ngFor="let ws of wingSections(); let i = index">
         <g>
           <rect
@@ -52,87 +50,191 @@
       </ng-container>
     </svg>
 
-    <!-- Divider -->
     <div class="divider"></div>
 
-    <!-- Jobs list -->
-    <div class="jobs-panel">
+    <!-- JOBS HEADER -->
+    <div class="jobs-header">
       <h3>Jobs for selected Wing Section</h3>
 
-      <div *ngIf="jobsLoading()" class="muted">Loading jobs…</div>
+      <div class="jobs-header-actions">
+        <button
+          class="btn"
+          [disabled]="jobsLoading()"
+          (click)="refreshJobs()">
+          Refresh
+        </button>
 
-      <div *ngIf="!jobsLoading() && selectedJobs().length === 0" class="muted">
-        No jobs for this wing section yet.
+        <button
+          class="btn btn-primary"
+          [disabled]="actionLoading()"
+          (click)="openCreate()">
+          Create Job
+        </button>
       </div>
-
-      <ul class="jobs-list" *ngIf="!jobsLoading() && selectedJobs().length > 0">
-        <li
-  class="job-card"
-  [class.job-selected]="isJobSelected(job)"
-  *ngFor="let job of selectedJobs()"
-  (click)="selectJob(job.id)"
->
-  <div class="job-title">
-    #{{ job.id }} — {{ job.title }}
-  </div>
-
-  <div class="job-meta">
-    Status: <strong>{{ job.status }}</strong>
-  </div>
-
-  <div class="job-desc">
-    {{ job.description }}
-  </div>
-
-  <!-- Actions: only show when THIS job is selected -->
-  <div class="job-actions" *ngIf="isJobSelected(job)">
-    <div class="error" *ngIf="actionError()">{{ actionError() }}</div>
-
-    <button
-      class="btn"
-      [disabled]="actionLoading()"
-      (click)="$event.stopPropagation(); updateJobStatus(job.id, 'IN_WORK')">
-      Start Work
-    </button>
-
-    <button
-      class="btn"
-      [disabled]="actionLoading()"
-      (click)="$event.stopPropagation(); requestInspection(job.id)">
-      Request Inspection
-    </button>
-
-    <button
-      class="btn"
-      [disabled]="actionLoading()"
-      (click)="$event.stopPropagation(); updateJobStatus(job.id, 'INSPECTION_IN_PROGRESS')">
-      Start Inspection
-    </button>
-
-    <button
-      class="btn"
-      [disabled]="actionLoading()"
-      (click)="$event.stopPropagation(); requestFinal(job.id)">
-      Request Final
-    </button>
-
-    <button
-      class="btn"
-      [disabled]="actionLoading()"
-      (click)="$event.stopPropagation(); updateJobStatus(job.id, 'FINAL_APPROVED')">
-      Approve Final
-    </button>
-
-    <button
-      class="btn btn-primary"
-      [disabled]="actionLoading()"
-      (click)="$event.stopPropagation(); updateJobStatus(job.id, 'COMPLETED')">
-      Complete
-    </button>
-  </div>
-</li>
-
-      </ul>
     </div>
+
+    <!-- CREATE FORM -->
+    <div class="job-form" *ngIf="creating()">
+      <div class="error" *ngIf="actionError()">{{ actionError() }}</div>
+
+      <label>
+        Wing Section
+        <input class="input" [value]="formWingSectionId()" disabled />
+      </label>
+
+      <label>
+        Employee ID
+        <input
+          class="input"
+          type="number"
+          [value]="formEmployeeId()"
+          (input)="formEmployeeId.set($any($event.target).valueAsNumber)" />
+      </label>
+
+      <label>
+        Title
+        <input
+          class="input"
+          [value]="formTitle()"
+          (input)="formTitle.set($any($event.target).value)" />
+      </label>
+
+      <label>
+        Description
+        <textarea
+          class="input"
+          rows="3"
+          [value]="formDescription()"
+          (input)="formDescription.set($any($event.target).value)">
+        </textarea>
+      </label>
+
+      <div class="job-form-actions">
+        <button class="btn" (click)="cancelForm()">Cancel</button>
+        <button
+          class="btn btn-primary"
+          [disabled]="actionLoading()"
+          (click)="submitCreate()">
+          Save
+        </button>
+      </div>
+    </div>
+
+    <!-- JOBS LIST -->
+    <div *ngIf="jobsLoading()" class="muted">Loading jobs…</div>
+
+    <div *ngIf="!jobsLoading() && selectedJobs().length === 0" class="muted">
+      No jobs for this wing section yet.
+    </div>
+
+    <ul class="jobs-list" *ngIf="!jobsLoading() && selectedJobs().length > 0">
+      <li
+        class="job-card"
+        *ngFor="let job of selectedJobs()"
+        [class.job-selected]="isJobSelected(job)"
+        (click)="selectJob(job.id)"
+      >
+        <div class="job-title">
+          #{{ job.id }} — {{ job.title }}
+        </div>
+
+        <div class="job-meta">
+          Status: <strong>{{ job.status }}</strong>
+        </div>
+
+        <div class="job-desc">
+          {{ job.description }}
+        </div>
+
+        <!-- EDIT FORM -->
+        <div class="job-form" *ngIf="editingJobId() === job.id">
+          <div class="error" *ngIf="actionError()">{{ actionError() }}</div>
+
+          <label>
+            Employee ID
+            <input
+              class="input"
+              type="number"
+              [value]="formEmployeeId()"
+              (input)="formEmployeeId.set($any($event.target).valueAsNumber)" />
+          </label>
+
+          <label>
+            Title
+            <input
+              class="input"
+              [value]="formTitle()"
+              (input)="formTitle.set($any($event.target).value)" />
+          </label>
+
+          <label>
+            Description
+            <textarea
+              class="input"
+              rows="3"
+              [value]="formDescription()"
+              (input)="formDescription.set($any($event.target).value)">
+            </textarea>
+          </label>
+
+          <div class="job-form-actions">
+            <button class="btn" (click)="cancelForm()">Cancel</button>
+            <button
+              class="btn btn-primary"
+              [disabled]="actionLoading()"
+              (click)="submitEdit(job.id)">
+              Save
+            </button>
+          </div>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div class="job-actions" *ngIf="isJobSelected(job) && editingJobId() !== job.id">
+          <div class="error" *ngIf="actionError()">{{ actionError() }}</div>
+
+          <button
+            class="btn"
+            [disabled]="actionLoading() || !canStartWork(job)"
+            (click)="$event.stopPropagation(); updateJobStatus(job.id, 'IN_WORK')">
+            Start Work
+          </button>
+
+          <button
+            class="btn"
+            [disabled]="actionLoading() || !canRequestInspection(job)"
+            (click)="$event.stopPropagation(); requestInspection(job.id)">
+            Request Inspection
+          </button>
+
+          <button
+            class="btn"
+            [disabled]="actionLoading() || !canRequestFinal(job)"
+            (click)="$event.stopPropagation(); requestFinal(job.id)">
+            Request Final
+          </button>
+
+          <button
+            class="btn btn-primary"
+            [disabled]="actionLoading() || !canApproveFinal(job)"
+            (click)="$event.stopPropagation(); updateJobStatus(job.id, 'FINAL_APPROVED')">
+            Approve Final
+          </button>
+
+          <button
+            class="btn"
+            [disabled]="actionLoading()"
+            (click)="$event.stopPropagation(); startEdit(job)">
+            Edit
+          </button>
+
+          <button
+            class="btn"
+            [disabled]="actionLoading()"
+            (click)="$event.stopPropagation(); deleteJob(job.id)">
+            Delete
+          </button>
+        </div>
+      </li>
+    </ul>
   </section>
 </div>

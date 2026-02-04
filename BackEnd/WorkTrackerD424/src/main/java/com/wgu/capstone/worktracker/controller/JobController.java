@@ -3,6 +3,7 @@ package com.wgu.capstone.worktracker.controller;
 import com.wgu.capstone.worktracker.dto.JobCreateRequest;
 import com.wgu.capstone.worktracker.dto.JobRespone;
 import com.wgu.capstone.worktracker.dto.JobStatusUpdateRequest;
+import com.wgu.capstone.worktracker.dto.JobUpdateRequest;
 import com.wgu.capstone.worktracker.entity.Job;
 import com.wgu.capstone.worktracker.enumtype.JobStatus;
 import com.wgu.capstone.worktracker.mapper.JobMapper;
@@ -80,6 +81,20 @@ public class JobController {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         jobService.deleteJob(id);
+    }
+
+    @PutMapping("/{id}")
+    public JobRespone updateDetails(
+            @PathVariable Long id,
+            @Valid @RequestBody JobUpdateRequest request
+    ) {
+        Job updated = jobService.updateJobDetails(
+                id,
+                request.getAssignedEmployeeId(),
+                request.getTitle(),
+                request.getDescription()
+        );
+        return JobMapper.toJobRespone(updated);
     }
 
 

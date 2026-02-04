@@ -21,6 +21,12 @@ export interface JobCreateRequest {
   description: string;
 }
 
+export interface JobUpdateRequest {
+  assignedEmployeeId: number;
+  title: string;
+  description: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -57,5 +63,12 @@ export class JobsApiService {
   return this.http.patch<JobResponse>(`${this.baseUrl}/${id}/request-inspection`, {});
 }
 
+delete(id: number): Observable<void> {
+  return this.http.delete<void>(`${this.baseUrl}/${id}`);
+}
+
+updateDetails(id: number, payload: JobUpdateRequest): Observable<JobResponse> {
+  return this.http.put<JobResponse>(`${this.baseUrl}/${id}`, payload);
+}
 
 }

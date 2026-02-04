@@ -30,6 +30,15 @@ export class DashboardComponent {
   selectedJobId = signal<number | null>(null);
   actionLoading = signal<boolean>(false);
   actionError = signal<string | null>(null);
+  // ---------- update ----------
+  creating = signal(false);
+  editingJobId = signal<number | null>(null);
+
+  formWingSectionId = signal<string>('');
+  formEmployeeId = signal<number>(1);
+  formTitle = signal<string>('');
+  formDescription = signal<string>('');
+
 
   // ---------- lookups ----------
   // svgRegionId -> WingSection
@@ -175,7 +184,7 @@ isJobSelected(job: JobResponse): boolean {
   return this.selectedJobId() === job.id;
 }
 
-private refreshJobs() {
+ refreshJobs() {
   this.jobsLoading.set(true);
   this.jobsApi.list().subscribe({
     next: (jobs) => {
@@ -288,6 +297,99 @@ nextStepLabel(job: JobResponse): string {
     default:
       return '';
   }
+}
+
+openCreate() {
+  const wsId = this.selectedId();
+  if (!wsId) return;
+
+  this.creating.set(true);
+  this.editingJobId.set(null);
+  this.actionError.set(null);
+
+  this.formWingSectionId.set(wsId);
+  this.formEmployeeId.set(3); // employeeid 3
+  this.formTitle.set(`Job - ${wsId}`);
+  this.formDescription.set('Work package description...');
+}
+
+cancelForm() {
+  this.creating.set(false);
+  this.editingJobId.set(null);
+}
+
+submitCreate() {
+  this.actionLoading.set(true);
+  this.actionError.set(null);
+
+  this.jobsApi.create({
+    wingSectionId: this.formWingSectionId(),
+    assignedEmployeeId: this.formEmployeeId(),
+    title: this.formTitle(),
+    description: this.formDescription(),
+  }).subscribe({
+    next: () => {
+      this.actionLoading.set(false);
+      this.creating.set(false);
+      this.refreshJobs();
+    },
+    error: (err) => {
+      this.actionLoading.set(false);
+      this.actionError.set(err?.error?.message || 'Create failed.');
+    },
+  });
+}
+
+startEdit(job: JobResponse) {
+  this.creating.set(false);
+  this.editingJobId.set(job.id);
+  this.actionError.set(null);
+
+  this.formWingSectionId.set(job.wingSectionId);
+  this.formEmployeeId.set(job.assignedEmployeeId ?? 3);
+  this.formTitle.set(job.title);
+  this.formDescription.set(job.description);
+}
+
+submitEdit(jobId: number) {
+  this.actionLoading.set(true);
+  this.actionError.set(null);
+
+  this.jobsApi.updateDetails(jobId, {
+    assignedEmployeeId: this.formEmployeeId(),
+    title: this.formTitle(),
+    description: this.formDescription(),
+  }).subscribe({
+    next: () => {
+      this.actionLoading.set(false);
+      this.editingJobId.set(null);
+      this.refreshJobs();
+    },
+    error: (err) => {
+      this.actionLoading.set(false);
+      this.actionError.set(err?.error?.message || 'Update failed.');
+    },
+  });
+}
+
+deleteJob(jobId: number) {
+  const ok = confirm(`Delete job #${jobId}?`);
+  if (!ok) return;
+
+  this.actionLoading.set(true);
+  this.actionError.set(null);
+
+  this.jobsApi.delete(jobId).subscribe({
+    next: () => {
+      this.actionLoading.set(false);
+      if (this.selectedJobId() === jobId) this.selectedJobId.set(null);
+      this.refreshJobs();
+    },
+    error: (err) => {
+      this.actionLoading.set(false);
+      this.actionError.set(err?.error?.message || 'Delete failed.');
+    },
+  });
 }
 
 

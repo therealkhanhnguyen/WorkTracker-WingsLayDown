@@ -221,3 +221,50 @@
   color: #b91c1c;
   font-size: 14px;
 }
+
+.status-ready_for_final {
+  fill: #7dd3fc; /* light teal/sky; close to green but distinct */
+}
+
+.jobs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.jobs-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.job-form {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
+  margin: 12px 0;
+  display: grid;
+  gap: 10px;
+}
+
+.job-form label {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.input {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 14px;
+}
+
+.job-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
