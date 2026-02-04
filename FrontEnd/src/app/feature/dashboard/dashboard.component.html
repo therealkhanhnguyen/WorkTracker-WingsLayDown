@@ -1,5 +1,29 @@
 <h1 class="title">WorkTracker Dashboard</h1>
 
+<!-- SEARCH BAR -->
+<div class="search-bar">
+  <select [(ngModel)]="searchWingSectionId">
+    <option value="">All Wing Sections</option>
+    <option *ngFor="let ws of wingSections()" [value]="ws.id">
+      {{ ws.name }}
+    </option>
+  </select>
+
+  <select [(ngModel)]="searchStatus">
+    <option value="">All Statuses</option>
+    <option value="CREATED">Created</option>
+    <option value="IN_WORK">In Work</option>
+    <option value="READY_FOR_INSPECTION">Ready for Inspection</option>
+    <option value="READY_FOR_FINAL">Ready for Final</option>
+    <option value="FINAL_APPROVED">Final Approved</option>
+    <!-- <option value="COMPLETED">Completed</option> -->
+  </select>
+
+  <button class="btn btn-primary" (click)="searchJobs()">Search</button>
+  <button class="btn" (click)="clearSearch()">Clear</button>
+</div>
+
+
 <div class="layout">
   <!-- LEFT: Wing sections list -->
   <section class="panel">
@@ -58,6 +82,7 @@
 
       <div class="jobs-header-actions">
         <button
+          type="button"
           class="btn"
           [disabled]="jobsLoading()"
           (click)="refreshJobs()">

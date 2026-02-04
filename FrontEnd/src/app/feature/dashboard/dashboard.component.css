@@ -157,6 +157,7 @@
   padding: 12px;
   background: #fbfbfb;
   cursor: pointer;
+  display: block;
 }
 
 .job-card.job-selected {
@@ -171,9 +172,11 @@
 
 .job-meta {
   font-size: 14px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   color: #374151;
+  display: block;
 }
+
 
 .job-desc {
   font-size: 14px;
@@ -182,11 +185,14 @@
 
 /* Actions */
 .job-actions {
-  margin-top: 10px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #e5e7eb;
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
 }
+
 
 .btn {
   border: 1px solid #e5e7eb;
@@ -268,3 +274,28 @@
   justify-content: flex-end;
   gap: 8px;
 }
+
+/* search bar */
+.search-bar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.search-bar select {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  font-size: 14px;
+}
+
+.jobs-panel {
+  max-height: 380px;      /* adjust if needed */
+  overflow-y: auto;
+}
+.panel {
+  overflow: visible;
+}
+

@@ -5,6 +5,7 @@ import { WingSection } from '../../core/models/wing-section.model';
 import { WingSectionsApiService } from '../../core/api/wing-sections-api.service';
 
 import { JobsApiService, JobResponse } from '../../core/api/jobs-api.service';
+import { FormsModule } from '@angular/forms';
 
 type StatusBucket = 'empty' | 'created' | 'in_work' | 'inspection' | 'ready_for_final' | 'completed';
 
@@ -13,7 +14,7 @@ type StatusBucket = 'empty' | 'created' | 'in_work' | 'inspection' | 'ready_for_
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
 })
@@ -38,6 +39,12 @@ export class DashboardComponent {
   formEmployeeId = signal<number>(1);
   formTitle = signal<string>('');
   formDescription = signal<string>('');
+
+  // search bar
+
+  searchWingSectionId = '';
+  searchStatus = '';
+
 
 
   // ---------- lookups ----------
@@ -390,6 +397,33 @@ deleteJob(jobId: number) {
       this.actionError.set(err?.error?.message || 'Delete failed.');
     },
   });
+}
+// search bar method
+
+searchJobs() {
+  this.jobsLoading.set(true);
+
+  this.jobsApi
+    .list(
+      this.searchStatus || undefined,
+      this.searchWingSectionId || undefined
+    )
+    .subscribe({
+      next: (jobs) => {
+        this.allJobs.set(jobs);
+        this.jobsLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Search failed', err);
+        this.jobsLoading.set(false);
+      },
+    });
+}
+
+clearSearch() {
+  this.searchWingSectionId = '';
+  this.searchStatus = '';
+  this.refreshJobs();
 }
 
 
