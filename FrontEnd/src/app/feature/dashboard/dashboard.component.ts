@@ -32,6 +32,7 @@ export class DashboardComponent {
   actionLoading = signal<boolean>(false);
   actionError = signal<string | null>(null);
   // ---------- update ----------
+  
   creating = signal(false);
   editingJobId = signal<number | null>(null);
 
@@ -90,7 +91,7 @@ export class DashboardComponent {
       error: (err) => console.error('Failed to load wing sections', err),
     });
 
-    // 2) load ALL jobs once (best for coloring all rectangles)
+    // 2) load ALL jobs once ( coloring all rectangles)
     this.jobsLoading.set(true);
     this.jobsApi.list().subscribe({
       next: (jobs: JobResponse[]) => {
@@ -263,7 +264,7 @@ requestFinal(jobId: number) {
   });
 }
 
-// ---- simplified flow guards ----
+// ---- simplified work flow ----
 // Flow: CREATED -> IN_WORK -> READY_FOR_INSPECTION -> READY_FOR_FINAL -> FINAL_APPROVED
 
 canStartWork(job: JobResponse): boolean {
@@ -398,6 +399,7 @@ deleteJob(jobId: number) {
     },
   });
 }
+
 // search bar method
 
 searchJobs() {

@@ -1,76 +1,84 @@
 /* ---- Fit the whole dashboard to the viewport ---- */
 :host {
   display: block;
-  height: 100vh;           /* full screen */
-  overflow: hidden;        /* stop page scrolling */
+  height: 100vh;
+  overflow: hidden; /* no page scroll */
   padding: 16px;
   box-sizing: border-box;
 }
 
 /* Page title */
 .title {
-  margin: 0 0 12px;        /* tighter to save vertical space */
-  font-size: 36px;         /* smaller so content fits */
+  margin: 0 0 12px;
+  font-size: 36px;
   font-weight: 800;
   line-height: 1.1;
 }
 
-/* Main layout (Wing Sections hidden -> 1 column) */
+/* search bar */
+.search-bar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.search-bar select {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  font-size: 14px;
+}
+
+/* Single-column layout */
 .layout {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 18px;
-  align-items: start;
-
-  /* take remaining height under title */
-  height: calc(100vh - 16px - 16px - 60px);
-  /* (top padding) (bottom padding) (approx title height) */
+  gap: 16px;
+  height: calc(100vh - 16px - 16px - 36px - 12px - 52px - 16px);
 }
 
-/* Shared panel style */
+/* Panel */
 .panel {
   background: #fff;
   border: 1px solid #e5e7eb;
   border-radius: 14px;
   padding: 18px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  height: 100%;
+  overflow: hidden; /* prevent accidental internal scrollbars */
 }
 
-/* Hide left wing section list */
-.layout > section.panel:first-child {
-  display: none;
-}
-
-/* Right panel becomes a vertical layout with internal scroll area */
+/* Right panel layout */
 .svg-panel {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  min-height: 0; /* IMPORTANT for allowing children to scroll */
+  min-height: 0;
 }
 
 .svg-panel h2 {
-  margin-bottom: 10px;
+  margin: 0 0 10px;
 }
 
-/* SVG spacing + height cap so jobs can fit on screen */
+/* Wing SVG (cap height so job card always fits) */
 .wing-svg {
   display: block;
   width: 100%;
   height: auto;
-  max-height: 52vh; /* adjust to 48vh..58vh if you want */
-  margin-top: 12px;
-  margin-bottom: 12px;
+  max-height: 60vh; /* key: keep room for Selected Job card */
+  margin-top: 8px;
+  margin-bottom: 8px;
 }
 
-/* Frame around the "map" */
+/* Frame */
 .frame {
   fill: transparent;
   stroke: #111;
   stroke-width: 3px;
 }
 
-/* Default region */
+/* Regions */
 .region {
   stroke: #111;
   stroke-width: 2px;
@@ -82,7 +90,6 @@
   filter: brightness(0.97);
 }
 
-/* Make sure selected always stands out */
 .region.selected {
   stroke-width: 4px;
   stroke: #111;
@@ -90,27 +97,14 @@
 }
 
 /* Status fills */
-.status-empty {
-  fill: #e5e7eb;
-}
+.status-empty { fill: #e5e7eb; }
+.status-created { fill: #cbd5e1; }
+.status-in_work { fill: #fdba74; }
+.status-inspection { fill: #fde68a; }
+.status-completed { fill: #86efac; }
+.status-ready_for_final { fill: #7dd3fc; }
 
-.status-created {
-  fill: #cbd5e1;
-}
-
-.status-in_work {
-  fill: #fdba74;
-}
-
-.status-inspection {
-  fill: #fde68a;
-}
-
-.status-completed {
-  fill: #86efac;
-}
-
-/* SVG text label */
+/* Labels */
 .label {
   font-size: 18px;
   font-weight: 600;
@@ -122,42 +116,29 @@
 .divider {
   height: 1px;
   background: #e5e7eb;
-  margin: 10px 0 10px; /* tighter */
+  margin: 6px 0;
 }
 
-/* Jobs panel: scrolls internally */
-.jobs-panel {
-  flex: 1;
-  min-height: 0; /* IMPORTANT */
-  overflow: auto;
-  padding-right: 6px; /* room for scrollbar */
+/* Header row */
+.jobs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
 }
 
-.jobs-panel h3 {
-  margin: 0 0 10px;
-  font-size: 18px;
+.jobs-header-actions {
+  display: flex;
+  gap: 8px;
 }
 
-.muted {
-  color: #6b7280;
-  font-size: 14px;
-}
-
-.jobs-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: 10px;
-}
-
+/* Selected job card */
 .job-card {
   border: 1px solid #e5e7eb;
   border-radius: 12px;
   padding: 12px;
   background: #fbfbfb;
-  cursor: pointer;
-  display: block;
 }
 
 .job-card.job-selected {
@@ -172,20 +153,18 @@
 
 .job-meta {
   font-size: 14px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   color: #374151;
-  display: block;
 }
-
 
 .job-desc {
   font-size: 14px;
   color: #111827;
+  margin-bottom: 8px;
 }
 
 /* Actions */
 .job-actions {
-  margin-top: 12px;
   padding-top: 10px;
   border-top: 1px solid #e5e7eb;
   display: flex;
@@ -193,7 +172,7 @@
   flex-wrap: wrap;
 }
 
-
+/* Buttons */
 .btn {
   border: 1px solid #e5e7eb;
   background: #ffffff;
@@ -222,35 +201,24 @@
   filter: brightness(1.05);
 }
 
+.muted {
+  color: #6b7280;
+  font-size: 14px;
+}
+
 .error {
   width: 100%;
   color: #b91c1c;
   font-size: 14px;
 }
 
-.status-ready_for_final {
-  fill: #7dd3fc; /* light teal/sky; close to green but distinct */
-}
-
-.jobs-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-
-.jobs-header-actions {
-  display: flex;
-  gap: 8px;
-}
-
+/* Forms */
 .job-form {
   border: 1px solid #e5e7eb;
   border-radius: 12px;
   padding: 12px;
   background: #fff;
-  margin: 12px 0;
+  margin: 10px 0;
   display: grid;
   gap: 10px;
 }
@@ -274,28 +242,3 @@
   justify-content: flex-end;
   gap: 8px;
 }
-
-/* search bar */
-.search-bar {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.search-bar select {
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  font-size: 14px;
-}
-
-.jobs-panel {
-  max-height: 380px;      /* adjust if needed */
-  overflow-y: auto;
-}
-.panel {
-  overflow: visible;
-}
-
