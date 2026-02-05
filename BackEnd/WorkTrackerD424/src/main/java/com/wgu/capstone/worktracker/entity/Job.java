@@ -42,6 +42,9 @@ public class Job extends AuditableEntity {
     @Column(name = "completed_at")
     private Instant completedAt;
 
+    //report feature
+    private Instant startedAt;
+
     protected Job(){}
 
     public Job(WingSection wingSection, User assignedEmployee, String title, String description) {
@@ -103,5 +106,13 @@ public class Job extends AuditableEntity {
 
     public void setWingSection(WingSection wingSection) {
         this.wingSection = wingSection;
+    }
+
+    public Instant getStartedAt() {
+        return startedAt;
+    }
+
+    public void setStartedAt(Instant startedAt) {
+        this.startedAt = startedAt;
     }
 }

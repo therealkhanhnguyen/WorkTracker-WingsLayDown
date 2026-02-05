@@ -102,21 +102,35 @@ public class JobService {
         return jobRepository.findByWingSection_Id(wingSectionId);
     }
 
-    public Job updateJob(Long jobId, JobStatus newStatus){
+    public Job updateJob(Long jobId, JobStatus newStatus) {
         Job job = getJob(jobId);
-        validateTransition(job.getStatus(), newStatus);
 
-        job.setStatus(newStatus);
+        JobStatus current = job.getStatus();
+        JobStatus next = newStatus;
 
-        //set timestamp if complete
-        if(newStatus == JobStatus.COMPLETED){
+        // validate lifecycle transition
+        validateTransition(current, next);
+
+        // set startedAt when work begins
+        if (current == JobStatus.CREATED
+                && next == JobStatus.IN_WORK
+                && job.getStartedAt() == null) {
+            job.setStartedAt(Instant.now());
+        }
+
+        // treat FINAL_APPROVED as "completed"
+        if (next == JobStatus.FINAL_APPROVED
+                && job.getCompletedAt() == null) {
             job.setCompletedAt(Instant.now());
         }
+
+        job.setStatus(next);
 
         return jobRepository.save(job);
     }
 
-//    private void validateTransition(JobStatus current, JobStatus next){
+
+    //    private void validateTransition(JobStatus current, JobStatus next){
 //        if (current == next){
 //            return;
 //        }

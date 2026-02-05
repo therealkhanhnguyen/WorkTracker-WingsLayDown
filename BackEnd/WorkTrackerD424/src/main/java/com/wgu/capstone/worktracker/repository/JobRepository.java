@@ -10,4 +10,5 @@ public interface JobRepository extends JpaRepository<Job, Long> {
     List<Job> findByStatus(JobStatus status);
     List<Job> findByWingSection_Id(String wingSectionId);
     boolean existsByWingSection_IdAndStatusNot(String wingSectionId, JobStatus status);
+
 }
