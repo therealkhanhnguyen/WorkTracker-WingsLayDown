@@ -7,6 +7,9 @@ import { WingSectionsApiService } from '../../core/api/wing-sections-api.service
 import { JobsApiService, JobResponse } from '../../core/api/jobs-api.service';
 import { FormsModule } from '@angular/forms';
 
+import { Router } from '@angular/router';
+import { AuthService } from '../../auth/auth.service';
+
 type StatusBucket = 'empty' | 'created' | 'in_work' | 'inspection' | 'ready_for_final' | 'completed';
 
 
@@ -78,7 +81,9 @@ export class DashboardComponent {
 
   constructor(
     private wingSectionService: WingSectionsApiService,
-    private jobsApi: JobsApiService
+    private jobsApi: JobsApiService,
+      private auth: AuthService,
+  private router: Router
   ) {
     // 1) load wing sections
     this.wingSectionService.getAll().subscribe({
@@ -443,6 +448,14 @@ downloadReport() {
     error: (err) => console.error('Report download failed', err)
   });
 }
+
+// security logout
+logout() {
+  this.auth.logout();
+  this.router.navigateByUrl('/login');
+}
+
+
 
 
 }
