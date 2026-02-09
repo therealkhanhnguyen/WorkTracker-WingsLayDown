@@ -108,19 +108,15 @@ public class JobService {
         JobStatus current = job.getStatus();
         JobStatus next = newStatus;
 
-        // validate lifecycle transition
         validateTransition(current, next);
 
-        // set startedAt when work begins
-        if (current == JobStatus.CREATED
-                && next == JobStatus.IN_WORK
-                && job.getStartedAt() == null) {
+        // set startedAt the moment work begins
+        if (current == JobStatus.CREATED && next == JobStatus.IN_WORK && job.getStartedAt() == null) {
             job.setStartedAt(Instant.now());
         }
 
-        // treat FINAL_APPROVED as "completed"
-        if (next == JobStatus.FINAL_APPROVED
-                && job.getCompletedAt() == null) {
+        // treat FINAL_APPROVED as "done" (your simplified workflow)
+        if (next == JobStatus.FINAL_APPROVED && job.getCompletedAt() == null) {
             job.setCompletedAt(Instant.now());
         }
 
@@ -128,6 +124,7 @@ public class JobService {
 
         return jobRepository.save(job);
     }
+
 
 
     //    private void validateTransition(JobStatus current, JobStatus next){

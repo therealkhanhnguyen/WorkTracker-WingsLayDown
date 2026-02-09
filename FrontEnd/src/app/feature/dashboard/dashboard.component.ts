@@ -428,5 +428,21 @@ clearSearch() {
   this.refreshJobs();
 }
 
+// report feature
+
+downloadReport() {
+  this.jobsApi.downloadJobCycleTimeReport().subscribe({
+    next: (blob) => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'job-cycle-time-report.csv';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    },
+    error: (err) => console.error('Report download failed', err)
+  });
+}
+
 
 }

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { API_BASE_URL } from './api.config';
+import { environment } from '../../../environment';
 
 export interface JobResponse {
   id: number;
@@ -70,5 +71,12 @@ delete(id: number): Observable<void> {
 updateDetails(id: number, payload: JobUpdateRequest): Observable<JobResponse> {
   return this.http.put<JobResponse>(`${this.baseUrl}/${id}`, payload);
 }
+
+// report feature
+
+downloadJobCycleTimeReport() {
+  return this.http.get(`${environment.apiBaseUrl}/reports/job-cycle-time.csv`, { responseType: 'blob' });
+}
+
 
 }

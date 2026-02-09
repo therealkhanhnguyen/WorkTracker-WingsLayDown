@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -34,7 +34,9 @@ public class ReportService {
         // Multiple columns
         sb.append("Job Code,Job Title,Wing Section,Started At,Final Approved At,Total Minutes,Total Hours\n");
 
-        DateTimeFormatter iso = DateTimeFormatter.ISO_INSTANT.withZone(ZoneOffset.UTC);
+        DateTimeFormatter formatter =
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                        .withZone(ZoneId.systemDefault());
 
         for (Job j : jobs) {
             String jobCode = formatJobCode(j.getId()); // WT-000123 style
@@ -44,8 +46,9 @@ public class ReportService {
             Instant startedAt = j.getStartedAt();
             Instant finalApprovedAt = j.getCompletedAt(); // we set this when FINAL_APPROVED happens
 
-            String startedAtStr = (startedAt != null) ? iso.format(startedAt) : "";
-            String finalApprovedAtStr = (finalApprovedAt != null) ? iso.format(finalApprovedAt) : "";
+            String startedAtStr = (startedAt != null) ? formatter.format(startedAt) : "";
+            String finalApprovedAtStr = (finalApprovedAt != null) ? formatter.format(finalApprovedAt) : "";
+
 
             Long totalMinutes = null;
             Double totalHours = null;
