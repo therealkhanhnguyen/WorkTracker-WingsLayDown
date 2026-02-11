@@ -59,11 +59,11 @@ public class DataSeeder implements CommandLineRunner {
             return;
         }
         List<User> users = List.of(
-                new User("Manager One", Role.MANAGER),
-                new User("QA One", Role.QA),
                 new User("Employee One", Role.EMPLOYEE),
                 new User("Employee Two", Role.EMPLOYEE),
-                new User("Employee Three", Role.EMPLOYEE)
+                new User("Employee Three", Role.EMPLOYEE),
+                new User("Employee Four", Role.EMPLOYEE),
+                new User("Employee Five", Role.EMPLOYEE)
         );
         userRepository.saveAll(users);
         System.out.println("Seeded " + users.size() + " users");

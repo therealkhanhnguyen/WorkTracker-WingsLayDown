@@ -71,8 +71,9 @@
           Refresh
         </button>
 
-        <button (click)="downloadReport()">Download Report (CSV)</button>
-
+        <button type="button" class="btn" (click)="downloadReport()">
+          Download Report (CSV)
+        </button>
 
         <button
           type="button"
@@ -88,8 +89,6 @@
           (click)="logout()">
           Logout
         </button>
-
-
       </div>
     </div>
 
@@ -137,6 +136,54 @@
           [disabled]="actionLoading()"
           (click)="submitCreate()">
           Save
+        </button>
+      </div>
+    </div>
+
+    <!-- EDIT FORM (FIX) -->
+    <div class="job-form" *ngIf="editingJobId() !== null">
+      <div class="error" *ngIf="actionError()">{{ actionError() }}</div>
+
+      <label>
+        Wing Section
+        <input class="input" [value]="formWingSectionId()" disabled />
+      </label>
+
+      <label>
+        Employee ID
+        <input
+          class="input"
+          type="number"
+          [value]="formEmployeeId()"
+          (input)="formEmployeeId.set($any($event.target).valueAsNumber)" />
+      </label>
+
+      <label>
+        Title
+        <input
+          class="input"
+          [value]="formTitle()"
+          (input)="formTitle.set($any($event.target).value)" />
+      </label>
+
+      <label>
+        Description
+        <textarea
+          class="input"
+          rows="3"
+          [value]="formDescription()"
+          (input)="formDescription.set($any($event.target).value)">
+        </textarea>
+      </label>
+
+      <div class="job-form-actions">
+        <button type="button" class="btn" (click)="cancelForm()">Cancel</button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          [disabled]="actionLoading()"
+          (click)="submitEdit(editingJobId()!)">
+          Update
         </button>
       </div>
     </div>
