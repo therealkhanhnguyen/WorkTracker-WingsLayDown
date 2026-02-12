@@ -18,12 +18,24 @@ export class LoginComponent {
   error = '';
   constructor(private auth: AuthService, private router: Router) {}
 
-  onLogin() {
-    // store creds
-    this.auth.login(this.username.trim(), this.password);
+onLogin() {
+  this.error = '';
 
-    // Optional: lightweight “verify” by calling backend later.
-    // For now, redirect and let API calls succeed/fail naturally.
-    this.router.navigateByUrl('/');
+  const u = this.username.trim();
+  const p = this.password;
+
+  if (!u) {
+    this.error = 'Username is required.';
+    return;
   }
+
+  if (!p) {
+    this.error = 'Password is required.';
+    return;
+  }
+
+  this.auth.login(u, p);
+  this.router.navigateByUrl('/');
+}
+
 }
