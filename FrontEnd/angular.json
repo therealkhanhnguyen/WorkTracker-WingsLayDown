@@ -31,8 +31,8 @@
             "production": {
               "fileReplacements": [
                 {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.prod.ts"
+                  "replace": "src/environment.ts",
+                  "with": "src/environment.prod.ts"
                 }
               ],
               "budgets": [
@@ -59,7 +59,7 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {"proxyConfig": "proxy.conf.json"},
+          "options": { "proxyConfig": "proxy.conf.json" },
           "configurations": {
             "production": {
               "buildTarget": "worktracker-ui:build:production"
