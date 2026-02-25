@@ -1,16 +1,41 @@
-import { HttpInterceptorFn } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { Injectable } from '@angular/core';
+import {
+  HttpEvent,
+  HttpHandler,
+  HttpInterceptor,
+  HttpRequest,
+} from '@angular/common/http';
+import { Observable, EMPTY } from 'rxjs';
 import { AuthService } from './auth.service';
 
-export const basicAuthInterceptor: HttpInterceptorFn = (req, next) => {
-  const auth = inject(AuthService);
-  const header = auth.getAuthHeader();
+@Injectable()
+export class BasicAuthInterceptor implements HttpInterceptor {
+  constructor(
+    private auth: AuthService,
+    private router: Router,
+  ) {}
 
-  if (!header) return next(req);
+  intercept(
+    req: HttpRequest<any>,
+    next: HttpHandler,
+  ): Observable<HttpEvent<any>> {
+    // Only handle API calls
+    if (!req.url.startsWith('/api')) {
+      return next.handle(req);
+    }
 
-  const authReq = req.clone({
-    setHeaders: { Authorization: header }
-  });
+    const header = this.auth.getAuthHeader();
 
-  return next(authReq);
-};
+    // If not logged in, DON'T call protected APIs (prevents 401 -> popup)
+    if (!header) {
+      // If user isn't already on /login, send them there
+      if (this.router.url !== '/login') {
+        this.router.navigateByUrl('/login');
+      }
+      return EMPTY; // cancels the request
+    }
+
+    return next.handle(req.clone({ setHeaders: { Authorization: header } }));
+  }
+}

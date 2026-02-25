@@ -19,14 +19,50 @@ import java.util.List;
 @Configuration
 public class SecurityConfig {
 
+//    @Bean
+//    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        http
+//                .csrf(csrf -> csrf.disable())
+//                .cors(Customizer.withDefaults())
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+//                        .anyRequest().authenticated()
+//                )
+//                .httpBasic(Customizer.withDefaults());
+//
+//        return http.build();
+//    }
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
+                        // Allow the SPA and static files WITHOUT auth (prevents browser popup)
+                        .requestMatchers(
+                                "/",
+                                "/login",
+                                "/index.html",
+                                "/favicon.ico",
+                                "/assets/**",
+                                "/**/*.css",
+                                "/**/*.js",
+                                "/**/*.map",
+                                "/**/*.png",
+                                "/**/*.jpg",
+                                "/**/*.svg",
+                                "/**/*.woff",
+                                "/**/*.woff2"
+                        ).permitAll()
+
+                        // Allow preflight
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
-                        .anyRequest().authenticated()
+
+                        // Protect API only
+                        .requestMatchers("/api/**").authenticated()
+
+                        .anyRequest().permitAll()
                 )
                 .httpBasic(Customizer.withDefaults());
 
