@@ -8,8 +8,6 @@ services:
       POSTGRES_PASSWORD: worktracker_pass
     ports:
       - "5432:5432"
-    volumes:
-      - worktracker_pgdata:/var/lib/postgresql/data
 
   backend:
     build: ./BackEnd/WorkTrackerD424
@@ -20,17 +18,5 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/worktracker
       SPRING_DATASOURCE_USERNAME: worktracker_user
       SPRING_DATASOURCE_PASSWORD: worktracker_pass
-      SERVER_PORT: 8080
     ports:
       - "8080:8080"
-
-  frontend:
-    build: ./FrontEnd
-    container_name: worktracker-frontend
-    depends_on:
-      - backend
-    ports:
-      - "8081:80"
-
-volumes:
-  worktracker_pgdata:
