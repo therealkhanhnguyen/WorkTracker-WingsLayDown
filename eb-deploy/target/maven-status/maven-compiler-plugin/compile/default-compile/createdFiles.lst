@@ -1,0 +1,7 @@
+com/wgu/capstone/worktracker/enumtype/JobStatus.class
+com/wgu/capstone/worktracker/entity/AuditableEntity.class
+com/wgu/capstone/worktracker/WorkTrackerD424Application.class
+com/wgu/capstone/worktracker/enumtype/InspectionResult.class
+com/wgu/capstone/worktracker/repository/WingSectionRepository.class
+com/wgu/capstone/worktracker/entity/WingSection.class
+com/wgu/capstone/worktracker/enumtype/Role.class
