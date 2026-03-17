@@ -1,0 +1,55 @@
+* 14acfb7 (HEAD -> working-d424, origin/working-d424) final
+* eaa5a26 Debug. Login page and remove pop up login
+* efca8fd Debug.
+* 62a42dc Debug. Switch to Spring Boot for deploy instead
+* b659383 Debug UI wasn't loading
+* faa6348 Debug Docker wasn't able to build
+* da200e3 debug
+* 7c61210 scripts folder with scripts and branch history file
+* 705d561 setting up for AWS Beanstalk
+* d35886d Created nginx conf
+* dba7329 Created FrontEnd Dockerfile
+* 1972d6e Modified application.properties for Deployment
+* 5f285be Created Dockerfile
+* 1d3e08e debug
+* 9255786 Created unit test for login component
+* 27386cd Debug. Updated DataSeeder
+* 31e038b Created Security feature logic
+* c621f7a Created security feature. Login page
+* d7348c8 Created Report feature logic
+* b1b173c Created Report feature logic
+* d3d9e34 Debug UI
+* 78df568 created search bar and filter job and job status.
+* e749af0 Create Update/Delete/Modify .Updated backend Job logic and frontend
+* b852fdd added delete job
+* 56ecd43 Debug. Simplified backend workflow
+* 950d74e debug, updated UI. Hide Wing Section bar since it's not needed.
+* 10e3539 Updated UI, debug
+* 7f24625 wired jobapi and created Job to front end.
+* eccfc73 debug where wings section couldn't connect to front end.
+* 835175a wired frontend and backend. Temp mainpage
+* 6714fef setting up api services
+* 4457221 Created frontend files
+* e71f376 Created Inspection and its repo,controller. Also Debugs getId issue
+* 17a1f32 Created WorkLog and its repo,controller
+* 0853fa6 Updated Exception
+* 5b6dffc created WorkLog and its repo, service
+* bcf684b created wingsection and its controller
+* e912e29 debug security dependency and typo from dto
+* 22b05f0 Created ApiExceptionHandler (trying out)
+* a52a732 created JobController
+* 3ca5013 created dto and mapper
+* 4e7204f created JobService and logic
+* c58a390 created exception package and exceptions logic
+* fef3630 created Job entity and job repo
+* e4c63b0 created user entity and user repo
+* e5ec195 Seed initial wing sections (11 jobs)
+* e7d3c5e Add WingSection entity and repository
+* 9fd2dc3 added enum, base entity.
+* beeee7b Configure PostgreSQL datasource for local development
+* 38ad7c1 Add FrontEnd folder placeholder
+* 5b6fb8f Initial project structure
+* 9fc6ffc (origin/main) Corrected mispelling
+* 808c354 Added Branching instructions to README
+* 5c6cab3 Added WGU Template README.md
+* 835201f Initial commit
